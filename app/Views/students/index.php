@@ -162,89 +162,88 @@
 
 
         $(document).ready(function() {
-            $("#syncButton").click(function() {
-                // Melakukan AJAX request ke controller
+            $('#syncButton').on('click', function() {
+                var syncButton = $('#syncButton');
+                var loadingSpinner = $('.loading-spinner');
+                syncButton.prop('disabled', true);
+                syncButton.html('Syncing...');
+                loadingSpinner.show();
                 $.ajax({
-                    url: "<?= base_url('/sync') ?>",
-                    type: "GET"
+                    url: '<?= base_url('/sync'); ?>', // Sesuaikan dengan URL rute Anda
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 200) {
+                            alert(response.message);
+                            syncButton.prop('disabled', false);
+
+                            syncButton.html('Sync Data dapodik');
+
+                            loadingSpinner.hide();
+                            // Refresh atau perbarui halaman jika diperlukan
+                            // location.reload();
+                        } else {
+                            console.log(response)
+                            syncButton.prop('disabled', false);
+
+                            syncButton.html('Sync Data dapodik');
+
+                            loadingSpinner.hide();
+                            alert(response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(xhr.responseText); // Tampilkan respons server
+                        console.log(status); // Tampilkan status HTTP
+                        console.log(error); // Tampilkan pesan kesalahan
+                        alert('Terjadi kesalahan saat melakukan permintaan AJAX.');
+                    }
                 });
             });
         });
+        // $(document).ready(function() {
 
-        // function syncData() {
+        //     // Mendapatkan elemen tombol dan indikator loading
 
-        //     fetch('/sync')
+        // var syncButton = $('#syncButton');
 
-        //         .then(response => {
-
-        //             if (!response.ok) {
-
-        //                 throw new Error('Data Berhasil syncron');
-
-        //             }
-
-        //             return response.text();
-
-        //         })
-
-        //         .then(message => {
-
-        //             alert(message);
-
-        //         })
-
-        //         .catch(error => {
-
-        //             alert(error.message);
-
-        //         });
-
-        // }
-
-        $(document).ready(function() {
-
-            // Mendapatkan elemen tombol dan indikator loading
-
-            var syncButton = $('#syncButton');
-
-            var loadingSpinner = $('.loading-spinner');
+        // var loadingSpinner = $('.loading-spinner');
 
 
 
-            // Mengubah tampilan tombol saat tombol ditekan
+        //     // Mengubah tampilan tombol saat tombol ditekan
 
-            syncButton.click(function() {
+        //     syncButton.click(function() {
 
-                syncButton.prop('disabled', true); // Menonaktifkan tombol
+        //         syncButton.prop('disabled', true); // Menonaktifkan tombol
 
-                syncButton.html('Syncing...'); // Mengubah teks tombol
+        //         syncButton.html('Syncing...'); // Mengubah teks tombol
 
-                loadingSpinner.show(); // Menampilkan indikator loading
+        //         loadingSpinner.show(); // Menampilkan indikator loading
 
 
 
-                // Simulasi permintaan asinkron (Anda dapat menggantinya dengan pengambilan data dari API)
+        //         // Simulasi permintaan asinkron (Anda dapat menggantinya dengan pengambilan data dari API)
 
-                setTimeout(function() {
+        //         setTimeout(function() {
 
-                    // Menjalankan tugas sinkronisasi di sini (contohnya, mengambil data dari API)
+        //             // Menjalankan tugas sinkronisasi di sini (contohnya, mengambil data dari API)
 
-                    // Setelah tugas selesai, aktifkan kembali tombol dan sembunyikan indikator loading
+        //             // Setelah tugas selesai, aktifkan kembali tombol dan sembunyikan indikator loading
 
-                    syncButton.prop('disabled', false);
+        //             syncButton.prop('disabled', false);
 
-                    syncButton.html('Sync Data dapodik');
+        //             syncButton.html('Sync Data dapodik');
 
-                    loadingSpinner.hide();
-                    alert("sukses sync")
+        //             loadingSpinner.hide();
 
-                    // alert('Data berhasil disinkronisasi.');
+        //             // alert('Data berhasil disinkronisasi.');
 
-                }, 5000); // Contoh: Menunggu 3 detik sebelum menyelesaikan sinkronisasi
+        //         }, 10000); // Contoh: Menunggu 3 detik sebelum menyelesaikan sinkronisasi
 
-            });
+        //     });
 
-        });
+        // });
 
 
 

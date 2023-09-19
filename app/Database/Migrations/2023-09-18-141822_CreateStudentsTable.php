@@ -12,12 +12,11 @@ class CreateStudentsTable extends Migration
             'registrasi_id' => [
                 'type' => 'VARCHAR',
                 'constraint' => 36, // UUID as a string
-                'default' => '7a5f8a9a-ab17-400a-aee9-3e13be170d57',
             ],
-            'NIPD' => [
+            'nipd' => [
                 'type' => 'VARCHAR',
-                'constraint' => 255, // Sesuaikan dengan kebutuhan
-                'null' => true,
+                'constraint' => 20,
+                'null' => true
             ],
             'nama' => [
                 'type' => 'VARCHAR',
@@ -26,6 +25,7 @@ class CreateStudentsTable extends Migration
             'nisn' => [
                 'type' => 'VARCHAR',
                 'constraint' => 20,
+                'null' => true
             ],
             'jenis_kelamin' => [
                 'type' => 'ENUM',
@@ -34,6 +34,7 @@ class CreateStudentsTable extends Migration
             'nik' => [
                 'type' => 'VARCHAR',
                 'constraint' => 20,
+                'null' => true
             ],
             'tempat_lahir' => [
                 'type' => 'VARCHAR',
@@ -52,6 +53,7 @@ class CreateStudentsTable extends Migration
             'nama_ayah' => [
                 'type' => 'VARCHAR',
                 'constraint' => 255,
+                'null' => true
             ],
             'email' => [
                 'type' => 'VARCHAR',

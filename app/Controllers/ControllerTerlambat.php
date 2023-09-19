@@ -32,60 +32,70 @@ class ControllerTerlambat extends BaseController
 
     public function syncData()
     {
-        // URL API yang akan digunakan untuk mengambil data
+        // URL API
         $apiUrl = 'http://103.229.14.238:8080/siswa';
-        $ch = curl_init($apiUrl);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-        if ($response === false) {
-            return "Gagal mengambil data dari API.";
+
+        // Mendapatkan respons dari API
+        $client = \Config\Services::curlrequest();
+        $response = $client->request('GET', $apiUrl);
+
+        // Parsing data JSON
+        $data = json_decode($response->getBody());
+
+        // Menyimpan data ke dalam database
+        if ($data && isset($data->rows) && is_array($data->rows)) {
+            foreach ($data->rows as $siswa) {
+                // Mencari siswa berdasarkan kolom yang unik, misalnya 'registrasi_id'
+                $siswaModel = new ModelSiswa(); // Ganti dengan model yang sesuai
+                $existingSiswa = $siswaModel->where('registrasi_id', $siswa->registrasi_id)->first();
+
+                if ($existingSiswa) {
+                    // Jika data sudah ada, lakukan update
+                    $siswaModel->update($existingSiswa['registrasi_id'], [
+                        'nama' => $siswa->nama,
+                        'nipd' => $siswa->nipd,
+                        'nisn' => $siswa->nisn,
+                        'jenis_kelamin' => $siswa->jenis_kelamin,
+                        'nik' => $siswa->nik,
+                        'tempat_lahir' => $siswa->tempat_lahir,
+                        'tanggal_lahir' => $siswa->tanggal_lahir,
+                        'agama_id_str' => $siswa->agama_id_str,
+                        'alamat_jalan' => $siswa->alamat_jalan,
+                        'nama_ayah' => $siswa->nama_ayah,
+                        'email' => $siswa->email,
+                        'tingkat_pendidikan_id' => $siswa->tingkat_pendidikan_id,
+                        'nama_rombel' => $siswa->nama_rombel
+                        // Sisipkan kolom lain yang ingin Anda update
+                    ]);
+                } else {
+                    // Jika data belum ada, lakukan insert
+                    $n = 1;
+                    $siswaModel->insert([
+                        'registrasi_id' => $siswa->registrasi_id,
+                        'nama' => $siswa->nama,
+                        'nipd' => $n++,
+                        'nisn' => $siswa->nisn,
+                        'jenis_kelamin' => $siswa->jenis_kelamin,
+                        'nik' => $siswa->nik,
+                        'tempat_lahir' => $siswa->tempat_lahir,
+                        'tanggal_lahir' => $siswa->tanggal_lahir,
+                        'agama_id_str' => $siswa->agama_id_str,
+                        'alamat_jalan' => $siswa->alamat_jalan,
+                        'nama_ayah' => $siswa->nama_ayah,
+                        'email' => $siswa->email,
+                        'tingkat_pendidikan_id' => $siswa->tingkat_pendidikan_id,
+                        'nama_rombel' => $siswa->nama_rombel
+                        // Sisipkan kolom lain yang sesuai dengan struktur tabel Anda
+                    ]);
+                }
+            }
+
+            // Berikan respons JSON sukses jika berhasil
+            return $this->response->setJSON(['message' => 'Data siswa berhasil diimpor', 'status' => 200])->setStatusCode(200);
+        } else {
+            // Berikan respons JSON gagal jika terjadi kesalahan
+            return $this->response->setJSON(['message' => 'Gagal mengimpor data siswa', 'status' => 500])->setStatusCode(500);
         }
-        curl_close($ch);
-        $data = json_decode($response, true);
-        $insertData = [];
-        $model = new ModelSiswa();
-
-        foreach ($data['rows'] as $row) {
-            $insertData[] = [
-                'registrasi_id' => $row['registrasi_id'],
-                'NIPD' => $row['nipd'],
-                'nama' => $row['nama'],
-                'nisn' => $row['nisn'],
-                'jenis_kelamin' => $row['jenis_kelamin'],
-                'nik' => $row['nik'],
-                'tempat_lahir' => $row['tempat_lahir'],
-                'tanggal_lahir' => $row['tanggal_lahir'],
-                'agama_id_str' => $row['agama_id_str'],
-                'alamat_jalan' => $row['alamat_jalan'],
-                'nama_ayah' => $row['nama_ayah'],
-                'email' => $row['email'],
-                'tingkat_pendidikan_id' => $row['tingkat_pendidikan_id'],
-                'nama_rombel' => $row['nama_rombel'],
-            ];
-        }
-
-        // Gunakan insertBatch untuk memasukkan semua data sekaligus
-        $model->insertBatch($insertData);
-
-        session()->setFlashdata('success', 'Data berhasil diambil dari API dan disimpan ke database.');
-
-        return view('students/index');
-
-        // Mendapatkan data dari API
-        // $response = file_get_contents($apiUrl);
-
-        // // Cek apakah ada data yang diterima dari API
-        // if ($response === false) {
-        //     return $this->fail('Gagal mengambil data dari API.', ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
-        // }
-
-        // // Menyimpan data ke file JSON
-        // $filePath = WRITEPATH . 'data.json';
-        // if (file_put_contents($filePath, $response) === false) {
-        //     return $this->fail('Data berhasil disinkronisasi.', ResponseInterface::HTTP_INTERNAL_SERVER_ERROR);
-        // }
-
-        // return $this->respond('Data berhasil disinkronisasi.', ResponseInterface::HTTP_OK);
     }
 
     public function updateTerlambat()
