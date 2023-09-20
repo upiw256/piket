@@ -25,4 +25,6 @@ class ModelSiswa extends Model
         'tingkat_pendidikan_id',
         'nama_rombel',
     ];
+
+    
 }

@@ -72,7 +72,7 @@
 
                     <tr>
 
-                        <th>NIPD</th>
+                        <th>No</th>
 
                         <th>Nama</th>
 
@@ -103,12 +103,11 @@
                 <tbody>
 
                     <?php
-
+                        $n=1;
                     foreach ($students as $student) : ?>
 
                         <tr>
-
-                            <td><?= $student['nipd'] ?? '-' ?></td>
+                            <td><?= $n++ ?></td>
 
                             <td><?= $student['nama'] ?? '-' ?></td>
 
@@ -181,7 +180,7 @@
 
                             loadingSpinner.hide();
                             // Refresh atau perbarui halaman jika diperlukan
-                            // location.reload();
+                            location.reload();
                         } else {
                             console.log(response)
                             syncButton.prop('disabled', false);
@@ -190,6 +189,7 @@
 
                             loadingSpinner.hide();
                             alert(response.message);
+                            location.reload();
                         }
                     },
                     error: function(xhr, status, error) {
@@ -284,15 +284,15 @@
                     data: JSON.stringify(terlambatData),
 
                     contentType: 'application/json',
-
                     success: function(response) {
-
+                        
                         // Tampilkan pesan atau lakukan tindakan lain jika berhasil
-
-                        alert(response.message);
-
+                        
+                        console.log(response)
+                        alert("Data: "+response.hasil+" berhasil ditambahkan");
+                        
                     },
-
+                    
                     error: function(error) {
 
                         // Tangani kesalahan jika terjadi

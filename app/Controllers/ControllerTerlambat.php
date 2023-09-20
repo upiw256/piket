@@ -3,10 +3,11 @@
 namespace App\Controllers;
 
 use App\Controllers\BaseController;
-use App\Models\ModelSiswa;
+use Ramsey\Uuid\Uuid;
 
 class ControllerTerlambat extends BaseController
 {
+
     public function index()
     {
         // // URL API yang berisi data mahasiswa
@@ -25,7 +26,7 @@ class ControllerTerlambat extends BaseController
         // $filePath = WRITEPATH . 'data.json';
         // $jsonData = file_get_contents($filePath);
         // $data['students'] = json_decode($jsonData, true);
-        $model = new ModelSiswa();
+        $model = $this->modelSiswa;
         $data['students'] = $model->findAll();
         return view('students/index', $data);
     }
@@ -46,14 +47,13 @@ class ControllerTerlambat extends BaseController
         if ($data && isset($data->rows) && is_array($data->rows)) {
             foreach ($data->rows as $siswa) {
                 // Mencari siswa berdasarkan kolom yang unik, misalnya 'registrasi_id'
-                $siswaModel = new ModelSiswa(); // Ganti dengan model yang sesuai
+                $siswaModel = $this->modelSiswa; // Ganti dengan model yang sesuai
                 $existingSiswa = $siswaModel->where('registrasi_id', $siswa->registrasi_id)->first();
 
                 if ($existingSiswa) {
                     // Jika data sudah ada, lakukan update
                     $siswaModel->update($existingSiswa['registrasi_id'], [
                         'nama' => $siswa->nama,
-                        'nipd' => $siswa->nipd,
                         'nisn' => $siswa->nisn,
                         'jenis_kelamin' => $siswa->jenis_kelamin,
                         'nik' => $siswa->nik,
@@ -69,11 +69,10 @@ class ControllerTerlambat extends BaseController
                     ]);
                 } else {
                     // Jika data belum ada, lakukan insert
-                    $n = 1;
+                    // dd($siswa->nama);
                     $siswaModel->insert([
                         'registrasi_id' => $siswa->registrasi_id,
                         'nama' => $siswa->nama,
-                        'nipd' => $n++,
                         'nisn' => $siswa->nisn,
                         'jenis_kelamin' => $siswa->jenis_kelamin,
                         'nik' => $siswa->nik,
@@ -99,38 +98,53 @@ class ControllerTerlambat extends BaseController
     }
 
     public function updateTerlambat()
-    { {
-            // Mendapatkan data yang dikirim dari JavaScript
-            $inputData = json_decode($this->request->getBody(), true);
+    { 
+        $uuid = Uuid::uuid4()->toString();
+        $model = $this->modelRekap;
+        $siswa = $this->modelSiswa;
+        $inputData = json_decode($this->request->getBody(), true);
+        $existingSiswa = $siswa->where('nisn', $inputData['nisn'])->first();
+            $model->insert([
+                'late_id'=> $uuid,
+                'registrasi_id' => $existingSiswa['registrasi_id'],
+                'date_late'=>date("d-m-Y H:i:s")
+                // Sisipkan kolom lain yang sesuai dengan struktur tabel Anda
+            ]);
+            return $this->response->setJSON(['hasil' => $existingSiswa['nama'], 'status' => 200])->setStatusCode(200);
 
-            // Baca file terlambat.json (pastikan file tersebut ada di folder yang benar)
-            $terlambatFile = WRITEPATH . 'terlambat.json';
-            $terlambatData = file_exists($terlambatFile) ? json_decode(file_get_contents($terlambatFile), true) : [];
 
-            // Cek apakah NISN sudah ada dalam data terlambat
-            if (isset($terlambatData[$inputData['nisn']])) {
-                // Jika sudah ada, tambahkan jumlah terlambat
-                $terlambatData[$inputData['nisn']]['terlambat'] += 1;
-            } else {
-                // Jika belum ada, tambahkan NISN ke data terlambat
-                $terlambatData[$inputData['nisn']] = [
-                    'nama' => $inputData['nama'],
-                    'nisn' => $inputData['nisn'],
-                    'nama_rombel' => $inputData['nama_rombel'],
-                    'tanggal' => date("Y-m-d"),
-                    'terlambat' => 1
-                ];
-            }
+            // // Mendapatkan data yang dikirim dari JavaScript
+            // $inputData = json_decode($this->request->getBody(), true);
 
-            // Simpan data terlambat ke file terlambat.json
+            // // Baca file terlambat.json (pastikan file tersebut ada di folder yang benar)
+            // $terlambatFile = WRITEPATH . 'terlambat.json';
+            // $terlambatData = file_exists($terlambatFile) ? json_decode(file_get_contents($terlambatFile), true) : [];
+
+            // // Cek apakah NISN sudah ada dalam data terlambat
+            // if (isset($terlambatData[$inputData['nisn']])) {
+            //     // Jika sudah ada, tambahkan jumlah terlambat
+            //     $terlambatData[$inputData['nisn']]['terlambat'] += 1;
+            // } else {
+            //     // Jika belum ada, tambahkan NISN ke data terlambat
+            //     $terlambatData[$inputData['nisn']] = [
+            //         'nama' => $inputData['nama'],
+            //         'nisn' => $inputData['nisn'],
+            //         'nama_rombel' => $inputData['nama_rombel'],
+            //         'tanggal' => date("Y-m-d"),
+            //         'terlambat' => 1
+            //     ];
+            // }
+
+            // // Simpan data terlambat ke file terlambat.json
             if (file_put_contents($terlambatFile, json_encode($terlambatData, JSON_PRETTY_PRINT)) === false) {
                 return $this->fail('Gagal menyimpan data terlambat.');
             }
-            // return $this->respond(['message' => 'Data terlambat berhasil diperbarui.']);
-        }
+        
     }
     function terlambat()
     {
-        return view('students/terlambat');
+        $model = $this->modelRekap;
+        $data['terlambatData'] = $model->count_late();
+        return view('students/terlambat',$data);
     }
 }

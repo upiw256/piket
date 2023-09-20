@@ -70,7 +70,7 @@
 
                 // Baca data dari file terlambat.json
 
-                $terlambatData = json_decode(file_get_contents(WRITEPATH . 'terlambat.json'), true);
+                // $terlambatData = json_decode(file_get_contents(WRITEPATH . 'terlambat.json'), true);
 
 
 
@@ -84,15 +84,15 @@
 
                         <td><?= $n++ ?></td>
 
-                        <td><?= $siswa['nama'] ?></td>
+                        <td><?= $siswa->nama ?></td>
 
-                        <td><?= $siswa['nisn'] ?></td>
+                        <td><?= $siswa->nisn ?></td>
 
-                        <td><?= $siswa['nama_rombel'] ?></td>
+                        <td><?= $siswa->nama_rombel ?></td>
 
-                        <td><?= $siswa['tanggal'] ?></td>
+                        <td><?= $siswa->date_late ?></td>
 
-                        <td><?= $siswa['terlambat'] ?> X</td>
+                        <td><?= $siswa->jumlah_terlambat ?> X</td>
 
                     </tr>
 

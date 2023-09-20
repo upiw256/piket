@@ -13,11 +13,6 @@ class CreateStudentsTable extends Migration
                 'type' => 'VARCHAR',
                 'constraint' => 36, // UUID as a string
             ],
-            'nipd' => [
-                'type' => 'VARCHAR',
-                'constraint' => 20,
-                'null' => true
-            ],
             'nama' => [
                 'type' => 'VARCHAR',
                 'constraint' => 255,
