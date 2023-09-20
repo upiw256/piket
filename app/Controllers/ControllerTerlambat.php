@@ -4,7 +4,7 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use Ramsey\Uuid\Uuid;
-
+use TCPDF;
 class ControllerTerlambat extends BaseController
 {
 
@@ -147,4 +147,66 @@ class ControllerTerlambat extends BaseController
         $data['terlambatData'] = $model->count_late();
         return view('students/terlambat',$data);
     }
+    function rekap() {
+        // Ambil tanggal dari permintaan POST atau sesuaikan cara Anda mengirim tanggal
+    $date = date('d-m-Y', strtotime($this->request->getPost('tanggal')));
+
+    // Ambil data dari database atau sumber lainnya sesuai kebutuhan
+    $data = $this->modelRekap->count_late_date($date);
+
+    // Buat PDF
+    $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    $pdf->SetTitle('Rekap Data');
+    $pdf->AddPage();
+    // Tambahkan konten PDF sesuai dengan data yang diperoleh
+    
+    $html = '<h1>Rekap Data per '.$date.'</h1>';
+    $html .= '<table style=`custom-heading`>';
+    $html .= '<tr><th>Registrasi ID</th><th>NISN</th><th>Nama</th><th>Nama Rombel</th><th>Tanggal Terlambat</th><th>Jumlah Terlambat</th></tr>';
+        $n=1;
+    foreach ($data as $row) {
+        $html .= '<tr>';
+        $html .= '<td>' . $n++. '</td>';
+        $html .= '<td>' . $row->nisn . '</td>';
+        $html .= '<td>' . $row->nama . '</td>';
+        $html .= '<td>' . $row->nama_rombel . '</td>';
+        $html .= '<td>' . date("d-m-Y",strtotime($row->date_late)) . '</td>';
+        $html .= '<td>' . $row->jumlah_terlambat . '</td>';
+        $html .= '</tr>';
+    }
+
+    $html .= '</table>';
+
+    $pdf->writeHTML($html, true, false, true, false, '');
+
+    // Output PDF ke browser atau simpan ke file
+    $pdf->Output('rekap_data.pdf', 'I');
+    // Simpan PDF ke server
+    $pdfFilePath = WRITEPATH . 'rekap_data.pdf'; // Ganti dengan path yang sesuai
+    
+    $pdf->Output($pdfFilePath, 'F'); // Simpan PDF ke file
+
+    // Kirim respons JSON yang berisi URL file PDF ke klien
+    return redirect()->to(route_to('tampil-pdf'));;
+    }
+
+    public function tampilkanPDF()
+{
+    dd("oke");
+    // Path ke file PDF yang ingin ditampilkan
+    $pdfFilePath = WRITEPATH . 'rekap_data.pdf';
+
+    // Periksa apakah file PDF ada
+    if (file_exists($pdfFilePath)) {
+        // Set header untuk menampilkan file PDF
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: inline; filename="rekap_data.pdf"');
+        header('Content-Length: ' . filesize($pdfFilePath));
+
+        // Tampilkan isi file PDF
+        readfile($pdfFilePath);
+    } else {
+        echo "File PDF tidak ditemukan.";
+    }
+}
 }

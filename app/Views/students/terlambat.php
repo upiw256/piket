@@ -7,6 +7,8 @@
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Tautan ke Bootstrap Datepicker CSS dan JavaScript -->
+
 
     <!-- jQuery -->
 
@@ -41,7 +43,13 @@
         <h1>Daftar Siswa Terlambat</h1>
 
         <a href="<?= base_url() ?>" class="btn btn-primary mb-4 btn-block">Data siswa</a>
-
+        <form>
+            <div class="mb-3">
+                <label for="tanggal" class="form-label">Pilih Tanggal:</label>
+                <input type="date" class="form-control" id="tanggal">
+            </div>
+            <button type="button" class="btn btn-primary" id="btnSubmit">Submit</button>
+        </form>
         <table class="table" id="example">
 
             <thead>
@@ -118,7 +126,27 @@
             });
 
         });
-    </script>
+
+        
+
+        $(document).ready(function() {
+            $('#btnSubmit').click(function() {
+                var selectedDate = $('#tanggal').val();
+
+                // Mengirim permintaan AJAX ke fungsi 'rekap' dengan data tanggal yang dipilih
+                $.ajax({
+                    url: '<?= base_url() ?>rekap', // Ganti dengan URL yang sesuai
+                    type: 'POST',
+                    data: { tanggal: selectedDate },
+                    success: function(response) {
+                        // Tindakan yang ingin Anda lakukan dengan respons dari 'rekap' di sini
+                        var pdfUrl = response.pdf_url;
+                        window.open(pdfUrl, '_blank');
+                    },
+                });
+            });
+        });
+</script>
 
 </body>
 
