@@ -140,8 +140,9 @@
                     data: { tanggal: selectedDate },
                     success: function(response) {
                         // Tindakan yang ingin Anda lakukan dengan respons dari 'rekap' di sini
-                        var pdfUrl = response.pdf_url;
-                        window.open(pdfUrl, '_blank');
+                        // var pdfUrl = response.pdf_url;
+                        // console.log(response.status)
+                        window.open('<?= base_url('pdf/rekap_data.pdf'); ?>', '_blank');
                     },
                 });
             });

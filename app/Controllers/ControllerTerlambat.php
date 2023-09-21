@@ -182,31 +182,29 @@ class ControllerTerlambat extends BaseController
     // Output PDF ke browser atau simpan ke file
     $pdf->Output('rekap_data.pdf', 'I');
     // Simpan PDF ke server
-    $pdfFilePath = WRITEPATH . 'rekap_data.pdf'; // Ganti dengan path yang sesuai
-    
-    $pdf->Output($pdfFilePath, 'F'); // Simpan PDF ke file
+    $pdfFilePath = FCPATH . 'pdf/rekap_data.pdf'; // Ganti dengan path yang sesuai
+    try {
+        $data = [
+            'message' => $pdfFilePath,
+            'status' => 200
+        ];
+        $pdf->Output($pdfFilePath, 'F');
+    } catch (\Exception $e) {
+        die('Error: ' . $e->getMessage());
+    }
+    // $pdf->Output($pdfFilePath, 'F'); // Simpan PDF ke file
 
     // Kirim respons JSON yang berisi URL file PDF ke klien
-    return redirect()->to(route_to('tampil-pdf'));;
+    // return redirect()->to(base_url('/'));;
     }
 
     public function tampilkanPDF()
-{
-    dd("oke");
-    // Path ke file PDF yang ingin ditampilkan
-    $pdfFilePath = WRITEPATH . 'rekap_data.pdf';
-
-    // Periksa apakah file PDF ada
-    if (file_exists($pdfFilePath)) {
-        // Set header untuk menampilkan file PDF
+    {
+        // Path ke file PDF yang ingin ditampilkan
+        $pdfFilePath = FCPATH . 'pdf/rekap_data.pdf';
         header('Content-Type: application/pdf');
         header('Content-Disposition: inline; filename="rekap_data.pdf"');
         header('Content-Length: ' . filesize($pdfFilePath));
-
-        // Tampilkan isi file PDF
         readfile($pdfFilePath);
-    } else {
-        echo "File PDF tidak ditemukan.";
     }
-}
 }
